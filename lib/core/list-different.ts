@@ -6,7 +6,8 @@ import { MainOptions } from "./types";
 import { fileToClassNames } from "../less";
 import {
   classNamesToTypeDefinitions,
-  getTypeDefinitionPath
+  getTypeDefinitionPath,
+  getTypeDefinitionMapPath
 } from "../typescript";
 
 export const listDifferent = async (
@@ -48,10 +49,15 @@ export const checkFile = (
       }
 
       const path = getTypeDefinitionPath(file);
+      const mapPath = getTypeDefinitionMapPath(file);
 
       const content = fs.readFileSync(path, { encoding: "utf8" });
+      const mapContent = fs.readFileSync(mapPath, { encoding: "utf8" });
 
-      if (content === definitions.typeDefinition) {
+      if (
+        content === definitions.typeDefinition &&
+        mapContent === definitions.typeDefinitionMap
+      ) {
         resolve(true);
       } else {
         alerts.error(`[INVALID TYPES] Check type definitions for ${file}`);

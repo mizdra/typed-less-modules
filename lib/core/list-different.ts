@@ -35,12 +35,12 @@ export const checkFile = (
 ): Promise<boolean> => {
   return new Promise(resolve =>
     fileToClassNames(file, options).then(transformations => {
-      const typeDefinition = classNamesToTypeDefinitions(
+      const definitions = classNamesToTypeDefinitions(
         transformations,
         options.exportType
       );
 
-      if (!typeDefinition) {
+      if (!definitions) {
         // Assume if no type defs are necessary it's fine
         resolve(true);
         return;
@@ -50,7 +50,7 @@ export const checkFile = (
 
       const content = fs.readFileSync(path, { encoding: "utf8" });
 
-      if (content === typeDefinition) {
+      if (content === definitions.typeDefinition) {
         resolve(true);
       } else {
         alerts.error(`[INVALID TYPES] Check type definitions for ${file}`);

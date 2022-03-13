@@ -19,19 +19,19 @@ export const writeFile = (
 ): Promise<void> => {
   return fileToClassNames(file, options)
     .then(transformations => {
-      const typeDefinition = classNamesToTypeDefinitions(
+      const definitions = classNamesToTypeDefinitions(
         transformations,
         options.exportType
       );
 
-      if (!typeDefinition) {
+      if (!definitions) {
         options.verbose && alerts.notice(`[NO GENERATED TYPES] ${file}`);
         return;
       }
 
       const path = getTypeDefinitionPath(file);
 
-      fs.writeFileSync(path, typeDefinition);
+      fs.writeFileSync(path, definitions.typeDefinition);
       options.verbose && alerts.success(`[GENERATED TYPES] ${path}`);
     })
     .catch(({ message, filename, line, column }: Less.RenderError) => {

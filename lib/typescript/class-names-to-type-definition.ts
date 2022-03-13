@@ -35,27 +35,27 @@ const isValidName = (className: ClassName) => {
 export const classNamesToTypeDefinitions = (
   transformations: Transformation[],
   exportType: ExportType
-): string | null => {
+): { typeDefinition: string } | null => {
   const classNames = transformations.map(({ className }) => className);
   if (classNames.length) {
-    let typeDefinitions;
+    let typeDefinition;
 
     switch (exportType) {
       case "default":
-        typeDefinitions = "export interface Styles {\n";
-        typeDefinitions += classNames.map(classNameToInterfaceKey).join("\n");
-        typeDefinitions += "\n}\n\n";
-        typeDefinitions += "export type ClassNames = keyof Styles;\n\n";
-        typeDefinitions += "declare const styles: Styles;\n\n";
-        typeDefinitions += "export default styles;\n";
-        return typeDefinitions;
+        typeDefinition = "export interface Styles {\n";
+        typeDefinition += classNames.map(classNameToInterfaceKey).join("\n");
+        typeDefinition += "\n}\n\n";
+        typeDefinition += "export type ClassNames = keyof Styles;\n\n";
+        typeDefinition += "declare const styles: Styles;\n\n";
+        typeDefinition += "export default styles;\n";
+        return { typeDefinition };
       case "named":
-        typeDefinitions = classNames
+        typeDefinition = classNames
           .filter(isValidName)
           .map(classNameToNamedTypeDefinition);
 
         // Sepearte all type definitions be a newline with a trailing newline.
-        return typeDefinitions.join("\n") + "\n";
+        return { typeDefinition: typeDefinition.join("\n") + "\n" };
       default:
         return null;
     }

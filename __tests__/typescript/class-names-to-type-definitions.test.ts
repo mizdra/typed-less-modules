@@ -12,9 +12,10 @@ describe("classNamesToTypeDefinitions", () => {
         "named"
       );
 
-      expect(definition).toEqual(
-        "export const myClass: string;\nexport const yourClass: string;\n"
-      );
+      expect(definition).toEqual({
+        typeDefinition:
+          "export const myClass: string;\nexport const yourClass: string;\n"
+      });
     });
 
     it("returns null if there are no class names", () => {
@@ -29,7 +30,9 @@ describe("classNamesToTypeDefinitions", () => {
         "named"
       );
 
-      expect(definition).toEqual("export const myClass: string;\n");
+      expect(definition).toEqual({
+        typeDefinition: "export const myClass: string;\n"
+      });
       expect(console.log).toBeCalledWith(
         expect.stringContaining(`[SKIPPING] 'if' is a reserved keyword`)
       );
@@ -41,7 +44,9 @@ describe("classNamesToTypeDefinitions", () => {
         "named"
       );
 
-      expect(definition).toEqual("export const myClass: string;\n");
+      expect(definition).toEqual({
+        typeDefinition: "export const myClass: string;\n"
+      });
       expect(console.log).toBeCalledWith(
         expect.stringContaining(`[SKIPPING] 'invalid-variable' contains dashes`)
       );
@@ -55,9 +60,10 @@ describe("classNamesToTypeDefinitions", () => {
         "default"
       );
 
-      expect(definition).toEqual(
-        "export interface Styles {\n  'myClass': string;\n  'yourClass': string;\n}\n\nexport type ClassNames = keyof Styles;\n\ndeclare const styles: Styles;\n\nexport default styles;\n"
-      );
+      expect(definition).toEqual({
+        typeDefinition:
+          "export interface Styles {\n  'myClass': string;\n  'yourClass': string;\n}\n\nexport type ClassNames = keyof Styles;\n\ndeclare const styles: Styles;\n\nexport default styles;\n"
+      });
     });
 
     it("returns null if there are no class names", () => {

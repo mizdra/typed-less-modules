@@ -54,10 +54,14 @@ export const NAME_FORMATS: NameFormat[] = [
 //   return null;
 // };
 
+export type Transformation = {
+  className: ClassName;
+};
+
 export const fileToClassNames = async (
   filepath: string,
   { nameFormat = "camel" }: Options = {} as Options
-) => {
+): Promise<Transformation[]> => {
   const transformer = classNameTransformer(nameFormat);
   const fileContents = await fs.readFile(filepath, "utf8");
   const output = await less.render(fileContents, {
@@ -69,9 +73,11 @@ export const fileToClassNames = async (
   });
   const { exportTokens } = await sourceToClassNames(output.css);
   const classNames = Object.keys(exportTokens);
-  const transformedClassNames = classNames.map(transformer);
 
-  return { classNames: transformedClassNames };
+  return classNames.map(className => {
+    const transformedClassName = transformer(className);
+    return { className: transformedClassName };
+  });
 };
 
 interface Transformer {

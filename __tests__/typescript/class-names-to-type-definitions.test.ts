@@ -8,7 +8,7 @@ describe("classNamesToTypeDefinitions", () => {
   describe("named", () => {
     it("converts an array of class name strings to type definitions", () => {
       const definition = classNamesToTypeDefinitions(
-        ["myClass", "yourClass"],
+        [{ className: "myClass" }, { className: "yourClass" }],
         "named"
       );
 
@@ -25,7 +25,7 @@ describe("classNamesToTypeDefinitions", () => {
 
     it("prints a warning if a classname is a reserved keyword and does not include it in the type definitions", () => {
       const definition = classNamesToTypeDefinitions(
-        ["myClass", "if"],
+        [{ className: "myClass" }, { className: "if" }],
         "named"
       );
 
@@ -37,7 +37,7 @@ describe("classNamesToTypeDefinitions", () => {
 
     it("prints a warning if a classname is invalid and does not include it in the type definitions", () => {
       const definition = classNamesToTypeDefinitions(
-        ["myClass", "invalid-variable"],
+        [{ className: "myClass" }, { className: "invalid-variable" }],
         "named"
       );
 
@@ -51,7 +51,7 @@ describe("classNamesToTypeDefinitions", () => {
   describe("default", () => {
     it("converts an array of class name strings to type definitions", () => {
       const definition = classNamesToTypeDefinitions(
-        ["myClass", "yourClass"],
+        [{ className: "myClass" }, { className: "yourClass" }],
         "default"
       );
 
@@ -70,7 +70,7 @@ describe("classNamesToTypeDefinitions", () => {
   describe("invalid export type", () => {
     it("returns null", () => {
       const definition = classNamesToTypeDefinitions(
-        ["myClass"],
+        [{ className: "myClass" }],
         "invalid" as ExportType
       );
 

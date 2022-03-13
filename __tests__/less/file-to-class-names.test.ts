@@ -4,7 +4,7 @@ describe("fileToClassNames", () => {
   test("it converts a file path to an array of class names (default camel cased)", async () => {
     const result = await fileToClassNames(`${__dirname}/../complex.less`);
 
-    expect(result.classNames).toEqual([
+    expect(result.map(r => r.className)).toEqual([
       "someStyles",
       "nestedClass",
       "nestedAnother"
@@ -17,7 +17,7 @@ describe("fileToClassNames", () => {
         nameFormat: "kebab"
       });
 
-      expect(result.classNames).toEqual([
+      expect(result.map(r => r.className)).toEqual([
         "some-styles",
         "nested-class",
         "nested-another"
@@ -29,7 +29,7 @@ describe("fileToClassNames", () => {
         nameFormat: "param"
       });
 
-      expect(result.classNames).toEqual([
+      expect(result.map(r => r.className)).toEqual([
         "some-styles",
         "nested-class",
         "nested-another"
@@ -41,7 +41,11 @@ describe("fileToClassNames", () => {
         nameFormat: "dashes"
       });
 
-      expect(result.classNames).toEqual(["App", "Logo", "appHeader"]);
+      expect(result.map(r => r.className)).toEqual([
+        "App",
+        "Logo",
+        "appHeader"
+      ]);
     });
 
     test("it does not change class names when nameFormat is set to none", async () => {
@@ -49,7 +53,11 @@ describe("fileToClassNames", () => {
         nameFormat: "none"
       });
 
-      expect(result.classNames).toEqual(["App", "Logo", "App-Header"]);
+      expect(result.map(r => r.className)).toEqual([
+        "App",
+        "Logo",
+        "App-Header"
+      ]);
     });
   });
 
@@ -62,7 +70,7 @@ describe("fileToClassNames", () => {
         }
       });
 
-      expect(result.classNames).toEqual([
+      expect(result.map(r => r.className)).toEqual([
         "someStyles",
         "nestedClass",
         "nestedAnother",
@@ -86,7 +94,7 @@ describe("fileToClassNames", () => {
         }
       );
 
-      expect(result.classNames).toEqual([
+      expect(result.map(r => r.className)).toEqual([
         "someStyles",
         "nestedClass",
         "nestedAnother",

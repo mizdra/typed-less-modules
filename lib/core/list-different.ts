@@ -34,7 +34,7 @@ export const checkFile = (
   options: MainOptions
 ): Promise<boolean> => {
   return new Promise(resolve =>
-    fileToClassNames(file, options).then(classNames => {
+    fileToClassNames(file, options).then(({ classNames }) => {
       const typeDefinition = classNamesToTypeDefinitions(
         classNames,
         options.exportType

@@ -18,7 +18,7 @@ export const writeFile = (
   options: MainOptions
 ): Promise<void> => {
   return fileToClassNames(file, options)
-    .then(classNames => {
+    .then(({ classNames }) => {
       const typeDefinition = classNamesToTypeDefinitions(
         classNames,
         options.exportType

@@ -81,7 +81,7 @@ export const fileToClassNames = (
           const classNames = Object.keys(exportTokens);
           const transformedClassNames = classNames.map(transformer);
 
-          return transformedClassNames;
+          return { classNames: transformedClassNames };
         });
       });
   });

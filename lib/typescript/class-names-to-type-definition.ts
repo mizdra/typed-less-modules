@@ -3,7 +3,10 @@ import { Position, SourceMapGenerator } from "source-map";
 
 import { ClassName, Transformation } from "lib/less/file-to-class-names";
 import { alerts } from "../core";
-import { getTypeDefinitionPath } from "./get-type-definition-path";
+import {
+  getTypeDefinitionMapPath,
+  getTypeDefinitionPath
+} from "./get-type-definition-path";
 import path from "path";
 
 export type ExportType = "named" | "default";
@@ -67,7 +70,7 @@ const generateDefinitionMap = (
 };
 
 export const classNamesToTypeDefinitions = (
-  sourceFileBasename: string,
+  sourceFile: string,
   transformations: Transformation[],
   exportType: ExportType
 ): { typeDefinition: string; typeDefinitionMap: string } | null => {
@@ -75,6 +78,10 @@ export const classNamesToTypeDefinitions = (
   if (classNames.length) {
     let typeDefinition;
     let typeDefinitionMap: string;
+    const sourceFileBasename = path.basename(sourceFile);
+    const typeDefinitionMapBasename = path.basename(
+      getTypeDefinitionMapPath(sourceFile)
+    );
     const map = new SourceMapGenerator({
       file: getTypeDefinitionPath(sourceFileBasename),
       sourceRoot: ""
@@ -88,6 +95,7 @@ export const classNamesToTypeDefinitions = (
         typeDefinition += "export type ClassNames = keyof Styles;\n\n";
         typeDefinition += "declare const styles: Styles;\n\n";
         typeDefinition += "export default styles;\n";
+        typeDefinition += `//# sourceMappingURL=${typeDefinitionMapBasename}\n`;
 
         typeDefinitionMap = generateDefinitionMap(
           sourceFileBasename,
@@ -101,9 +109,12 @@ export const classNamesToTypeDefinitions = (
 
         return { typeDefinition, typeDefinitionMap };
       case "named":
-        typeDefinition = classNames
-          .filter(isValidName)
-          .map(classNameToNamedTypeDefinition);
+        typeDefinition =
+          classNames
+            .filter(isValidName)
+            .map(classNameToNamedTypeDefinition)
+            .join("\n") + "\n";
+        typeDefinition += `//# sourceMappingURL=${typeDefinitionMapBasename}\n`;
 
         typeDefinitionMap = generateDefinitionMap(
           sourceFileBasename,
@@ -117,7 +128,7 @@ export const classNamesToTypeDefinitions = (
 
         // Sepearte all type definitions be a newline with a trailing newline.
         return {
-          typeDefinition: typeDefinition.join("\n") + "\n",
+          typeDefinition: typeDefinition,
           typeDefinitionMap: map.toString()
         };
       default:

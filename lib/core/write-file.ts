@@ -7,7 +7,6 @@ import {
 } from "../typescript";
 import { fileToClassNames } from "../less";
 import { MainOptions } from "./types";
-import path from "path";
 
 /**
  * Given a single file generate the proper types.
@@ -21,12 +20,8 @@ export const writeFile = (
 ): Promise<void> => {
   return fileToClassNames(file, options)
     .then(transformations => {
-      const typeDefinitionPath = getTypeDefinitionPath(file);
-      const typeDefinitionMapPath = getTypeDefinitionMapPath(file);
-      const sourceFileBasename = path.basename(file);
-      const typeDefinitionMapBasename = path.basename(typeDefinitionMapPath);
       const definitions = classNamesToTypeDefinitions(
-        sourceFileBasename,
+        file,
         transformations,
         options.exportType
       );
@@ -37,11 +32,9 @@ export const writeFile = (
       }
 
       // NOTE: tsserver does not support inline declaration maps. Therefore, map files must be output.
-      fs.writeFileSync(
-        typeDefinitionPath,
-        definitions.typeDefinition +
-          `//# sourceMappingURL=${typeDefinitionMapBasename}\n`
-      );
+      const typeDefinitionPath = getTypeDefinitionPath(file);
+      const typeDefinitionMapPath = getTypeDefinitionMapPath(file);
+      fs.writeFileSync(typeDefinitionPath, definitions.typeDefinition);
       fs.writeFileSync(typeDefinitionMapPath, definitions.typeDefinitionMap);
       options.verbose &&
         alerts.success(`[GENERATED TYPES] ${typeDefinitionPath}`);

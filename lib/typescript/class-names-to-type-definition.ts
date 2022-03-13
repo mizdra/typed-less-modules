@@ -56,7 +56,7 @@ const generateDefinitionMap = (
       return;
     map.addMapping({
       generated: toGeneratedPosition(transformation, i),
-      source: sourceFileBasename,
+      source: transformation.originalPosition.source || sourceFileBasename,
       original: {
         line: transformation.originalPosition.line,
         column: transformation.originalPosition.column

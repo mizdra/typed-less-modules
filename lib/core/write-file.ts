@@ -6,6 +6,7 @@ import {
 } from "../typescript";
 import { fileToClassNames } from "../less";
 import { MainOptions } from "./types";
+import path from "path";
 
 /**
  * Given a single file generate the proper types.
@@ -19,7 +20,12 @@ export const writeFile = (
 ): Promise<void> => {
   return fileToClassNames(file, options)
     .then(transformations => {
+      const typeDefinitionPath = getTypeDefinitionPath(file);
+      const typeDefinitionMapPath = typeDefinitionPath + ".map";
+      const sourceFileBasename = path.basename(file);
+      const typeDefinitionMapBasename = path.basename(typeDefinitionMapPath);
       const definitions = classNamesToTypeDefinitions(
+        sourceFileBasename,
         transformations,
         options.exportType
       );
@@ -29,10 +35,15 @@ export const writeFile = (
         return;
       }
 
-      const path = getTypeDefinitionPath(file);
-
-      fs.writeFileSync(path, definitions.typeDefinition);
-      options.verbose && alerts.success(`[GENERATED TYPES] ${path}`);
+      // NOTE: tsserver does not support inline declaration maps. Therefore, map files must be output.
+      fs.writeFileSync(
+        typeDefinitionPath,
+        definitions.typeDefinition +
+          `\n//# sourceMappingURL=${typeDefinitionMapBasename}`
+      );
+      fs.writeFileSync(typeDefinitionMapPath, definitions.typeDefinitionMap);
+      options.verbose &&
+        alerts.success(`[GENERATED TYPES] ${typeDefinitionPath}`);
     })
     .catch(({ message, filename, line, column }: Less.RenderError) => {
       const location = filename ? `(${filename}[${line}:${column}])` : "";

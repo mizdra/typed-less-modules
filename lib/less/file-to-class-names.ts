@@ -2,6 +2,8 @@ import less from "less";
 import camelcase from "camelcase";
 import paramcase from "param-case";
 import fs from "fs/promises";
+import postcss, { Rule } from "postcss";
+import { SourceMapConsumer, NullableMappedPosition } from "source-map";
 
 const NpmImportPlugin = require("less-plugin-npm-import");
 const CssModulesLessPlugin = require("less-plugin-css-modules").default;
@@ -33,6 +35,51 @@ export const NAME_FORMATS: NameFormat[] = [
   "none"
 ];
 
+export const getClassNameToCSSRuleMap = (
+  output: Less.RenderOutput,
+  classNames: string[]
+) => {
+  const classNameToRuleMap = new Map<string, Rule>();
+
+  const ast = postcss.parse(output.css);
+
+  ast.walkRules(rule => {
+    classNames.forEach(className => {
+      const classNameOfRule = rule.selector.replace(/^\./, "");
+      if (classNameOfRule === className) {
+        classNameToRuleMap.set(className, rule);
+      }
+    });
+  });
+  return classNameToRuleMap;
+};
+
+export const getClassNameToOriginalPositionMap = async (
+  output: Less.RenderOutput,
+  classNames: string[]
+) => {
+  if (output.map === undefined)
+    return new Map<string, NullableMappedPosition>();
+
+  const classNameToCSSRuleMap = getClassNameToCSSRuleMap(output, classNames);
+  const classNameToOriginalPositionMap = new Map<
+    string,
+    NullableMappedPosition
+  >();
+  const consumer = await new SourceMapConsumer(JSON.parse(output.map));
+
+  classNameToCSSRuleMap.forEach((rule, className) => {
+    if (!(rule.source && rule.source.start)) return;
+    const originalPosition = consumer.originalPositionFor({
+      line: rule.source.start.line,
+      column: rule.source.start.column
+    });
+    classNameToOriginalPositionMap.set(className, originalPosition);
+  });
+
+  return classNameToOriginalPositionMap;
+};
+
 // const importer = (aliases: Aliases, aliasPrefixes: Aliases) => (
 //   url: string
 // ) => {
@@ -56,6 +103,7 @@ export const NAME_FORMATS: NameFormat[] = [
 
 export type Transformation = {
   className: ClassName;
+  originalPosition?: NullableMappedPosition;
 };
 
 export const fileToClassNames = async (
@@ -69,14 +117,20 @@ export const fileToClassNames = async (
     plugins: [
       new NpmImportPlugin({ prefix: "~" }),
       new CssModulesLessPlugin({ mode: "global" })
-    ]
+    ],
+    sourceMap: {}
   });
   const { exportTokens } = await sourceToClassNames(output.css);
   const classNames = Object.keys(exportTokens);
 
+  const classNameToOriginalPositionMap = await getClassNameToOriginalPositionMap(
+    output,
+    classNames
+  );
   return classNames.map(className => {
     const transformedClassName = transformer(className);
-    return { className: transformedClassName };
+    const originalPosition = classNameToOriginalPositionMap.get(className);
+    return { className: transformedClassName, originalPosition };
   });
 };
 

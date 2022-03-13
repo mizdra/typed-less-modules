@@ -3,4 +3,7 @@ export {
   ExportType,
   EXPORT_TYPES
 } from "./class-names-to-type-definition";
-export { getTypeDefinitionPath } from "./get-type-definition-path";
+export {
+  getTypeDefinitionPath,
+  getTypeDefinitionMapPath
+} from "./get-type-definition-path";

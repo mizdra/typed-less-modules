@@ -2,7 +2,8 @@ import fs from "fs";
 import { alerts } from "./alerts";
 import {
   getTypeDefinitionPath,
-  classNamesToTypeDefinitions
+  classNamesToTypeDefinitions,
+  getTypeDefinitionMapPath
 } from "../typescript";
 import { fileToClassNames } from "../less";
 import { MainOptions } from "./types";
@@ -21,7 +22,7 @@ export const writeFile = (
   return fileToClassNames(file, options)
     .then(transformations => {
       const typeDefinitionPath = getTypeDefinitionPath(file);
-      const typeDefinitionMapPath = typeDefinitionPath + ".map";
+      const typeDefinitionMapPath = getTypeDefinitionMapPath(file);
       const sourceFileBasename = path.basename(file);
       const typeDefinitionMapBasename = path.basename(typeDefinitionMapPath);
       const definitions = classNamesToTypeDefinitions(
@@ -39,7 +40,7 @@ export const writeFile = (
       fs.writeFileSync(
         typeDefinitionPath,
         definitions.typeDefinition +
-          `\n//# sourceMappingURL=${typeDefinitionMapBasename}`
+          `//# sourceMappingURL=${typeDefinitionMapBasename}\n`
       );
       fs.writeFileSync(typeDefinitionMapPath, definitions.typeDefinitionMap);
       options.verbose &&

@@ -22,15 +22,19 @@ describe("main", () => {
 
     const expectedDirname = slash(__dirname);
 
-    expect(fs.writeFileSync).toBeCalledTimes(7);
+    expect(fs.writeFileSync).toBeCalledTimes(7 * 2);
 
-    expect(fs.writeFileSync).toBeCalledWith(
-      `${expectedDirname}/complex.less.d.ts`,
-      "export const someStyles: string;\nexport const nestedClass: string;\nexport const nestedAnother: string;\n"
-    );
-    expect(fs.writeFileSync).toBeCalledWith(
-      `${expectedDirname}/style.less.d.ts`,
-      "export const someClass: string;\n"
+    expect((fs.writeFileSync as jest.Mock).mock.calls).toStrictEqual(
+      expect.arrayContaining([
+        [
+          `${expectedDirname}/complex.less.d.ts`,
+          "export const someStyles: string;\nexport const nestedClass: string;\nexport const nestedAnother: string;\n//# sourceMappingURL=complex.less.d.ts.map\n"
+        ],
+        [
+          `${expectedDirname}/style.less.d.ts`,
+          "export const someClass: string;\n//# sourceMappingURL=style.less.d.ts.map\n"
+        ]
+      ])
     );
   });
 });

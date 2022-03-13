@@ -1,7 +1,10 @@
 import fs from "fs";
 
 import { writeFile } from "../../lib/core";
-import { getTypeDefinitionPath } from "../../lib/typescript";
+import {
+  getTypeDefinitionPath,
+  getTypeDefinitionMapPath
+} from "../../lib/typescript";
 
 describe("writeFile", () => {
   beforeEach(() => {
@@ -13,6 +16,7 @@ describe("writeFile", () => {
   test("writes the corresponding type definitions for a file and logs", async () => {
     const testFile = `${__dirname}/../style.less`;
     const typesFile = getTypeDefinitionPath(testFile);
+    const typesMapFile = getTypeDefinitionMapPath(testFile);
 
     await writeFile(testFile, {
       watch: false,
@@ -22,9 +26,15 @@ describe("writeFile", () => {
       verbose: true
     });
 
-    expect(fs.writeFileSync).toBeCalledWith(
+    expect(fs.writeFileSync).toHaveBeenNthCalledWith(
+      1,
       typesFile,
-      "export const someClass: string;\n"
+      "export const someClass: string;\n//# sourceMappingURL=style.less.d.ts.map\n"
+    );
+    expect(fs.writeFileSync).toHaveBeenNthCalledWith(
+      2,
+      typesMapFile,
+      '{"version":3,"sources":[],"names":[],"mappings":"","file":"style.less.d.ts","sourceRoot":""}'
     );
 
     expect(console.log).toBeCalledWith(

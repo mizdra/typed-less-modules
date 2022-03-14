@@ -7,6 +7,7 @@ import {
 } from "../typescript";
 import { fileToClassNames } from "../less";
 import { MainOptions } from "./types";
+import path from "path";
 
 /**
  * Given a single file generate the proper types.
@@ -31,11 +32,21 @@ export const writeFile = (
         return;
       }
 
-      // NOTE: tsserver does not support inline declaration maps. Therefore, map files must be output.
       const typeDefinitionPath = getTypeDefinitionPath(file);
       const typeDefinitionMapPath = getTypeDefinitionMapPath(file);
-      fs.writeFileSync(typeDefinitionPath, definitions.typeDefinition);
-      fs.writeFileSync(typeDefinitionMapPath, definitions.typeDefinitionMap);
+
+      // NOTE: tsserver does not support inline declaration maps. Therefore, map files must be output.
+      if (options.declarationMap) {
+        const typeDefinitionMapBasename = path.basename(typeDefinitionMapPath);
+        const footer = `//# sourceMappingURL=${typeDefinitionMapBasename}\n`;
+        fs.writeFileSync(
+          typeDefinitionPath,
+          definitions.typeDefinition + footer
+        );
+        fs.writeFileSync(typeDefinitionMapPath, definitions.typeDefinitionMap);
+      } else {
+        fs.writeFileSync(typeDefinitionPath, definitions.typeDefinition);
+      }
       options.verbose &&
         alerts.success(`[GENERATED TYPES] ${typeDefinitionPath}`);
     })

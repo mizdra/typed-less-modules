@@ -3,10 +3,7 @@ import { Position, SourceMapGenerator } from "source-map";
 
 import { ClassName, Transformation } from "lib/less/file-to-class-names";
 import { alerts } from "../core";
-import {
-  getTypeDefinitionMapPath,
-  getTypeDefinitionPath
-} from "./get-type-definition-path";
+import { getTypeDefinitionPath } from "./get-type-definition-path";
 import path from "path";
 
 export type ExportType = "named" | "default";
@@ -79,9 +76,6 @@ export const classNamesToTypeDefinitions = (
     let typeDefinition;
     let typeDefinitionMap: string;
     const sourceFileBasename = path.basename(sourceFile);
-    const typeDefinitionMapBasename = path.basename(
-      getTypeDefinitionMapPath(sourceFile)
-    );
     const map = new SourceMapGenerator({
       file: getTypeDefinitionPath(sourceFileBasename),
       sourceRoot: ""
@@ -95,7 +89,6 @@ export const classNamesToTypeDefinitions = (
         typeDefinition += "export type ClassNames = keyof Styles;\n\n";
         typeDefinition += "declare const styles: Styles;\n\n";
         typeDefinition += "export default styles;\n";
-        typeDefinition += `//# sourceMappingURL=${typeDefinitionMapBasename}\n`;
 
         typeDefinitionMap = generateDefinitionMap(
           sourceFileBasename,
@@ -114,7 +107,6 @@ export const classNamesToTypeDefinitions = (
             .filter(isValidName)
             .map(classNameToNamedTypeDefinition)
             .join("\n") + "\n";
-        typeDefinition += `//# sourceMappingURL=${typeDefinitionMapBasename}\n`;
 
         typeDefinitionMap = generateDefinitionMap(
           sourceFileBasename,

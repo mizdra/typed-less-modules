@@ -19,6 +19,7 @@ describe("writeFile", () => {
       watch: false,
       ignoreInitial: false,
       exportType: "named",
+      declarationMap: false,
       listDifferent: true,
       aliases: {
         "~fancy-import": "complex",
@@ -43,6 +44,7 @@ describe("writeFile", () => {
       watch: false,
       ignoreInitial: false,
       exportType: "named",
+      declarationMap: false,
       listDifferent: true
     });
 

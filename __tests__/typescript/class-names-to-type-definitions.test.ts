@@ -17,7 +17,7 @@ describe("classNamesToTypeDefinitions", () => {
 
       expect(definition).toEqual({
         typeDefinition:
-          "export const myClass: string;\nexport const yourClass: string;\n//# sourceMappingURL=source.less.d.ts.map\n",
+          "export const myClass: string;\nexport const yourClass: string;\n",
         typeDefinitionMap:
           '{"version":3,"sources":[],"names":[],"mappings":"","file":"source.less.d.ts","sourceRoot":""}'
       });
@@ -41,8 +41,7 @@ describe("classNamesToTypeDefinitions", () => {
       );
 
       expect(definition).toEqual({
-        typeDefinition:
-          "export const myClass: string;\n//# sourceMappingURL=source.less.d.ts.map\n",
+        typeDefinition: "export const myClass: string;\n",
         typeDefinitionMap:
           '{"version":3,"sources":[],"names":[],"mappings":"","file":"source.less.d.ts","sourceRoot":""}'
       });
@@ -59,8 +58,7 @@ describe("classNamesToTypeDefinitions", () => {
       );
 
       expect(definition).toEqual({
-        typeDefinition:
-          "export const myClass: string;\n//# sourceMappingURL=source.less.d.ts.map\n",
+        typeDefinition: "export const myClass: string;\n",
         typeDefinitionMap:
           '{"version":3,"sources":[],"names":[],"mappings":"","file":"source.less.d.ts","sourceRoot":""}'
       });
@@ -80,7 +78,7 @@ describe("classNamesToTypeDefinitions", () => {
 
       expect(definition).toEqual({
         typeDefinition:
-          "export interface Styles {\n  'myClass': string;\n  'yourClass': string;\n}\n\nexport type ClassNames = keyof Styles;\n\ndeclare const styles: Styles;\n\nexport default styles;\n//# sourceMappingURL=source.less.d.ts.map\n",
+          "export interface Styles {\n  'myClass': string;\n  'yourClass': string;\n}\n\nexport type ClassNames = keyof Styles;\n\ndeclare const styles: Styles;\n\nexport default styles;\n",
         typeDefinitionMap:
           '{"version":3,"sources":[],"names":[],"mappings":"","file":"source.less.d.ts","sourceRoot":""}'
       });

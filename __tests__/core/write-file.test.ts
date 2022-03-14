@@ -16,25 +16,19 @@ describe("writeFile", () => {
   test("writes the corresponding type definitions for a file and logs", async () => {
     const testFile = `${__dirname}/../style.less`;
     const typesFile = getTypeDefinitionPath(testFile);
-    const typesMapFile = getTypeDefinitionMapPath(testFile);
 
     await writeFile(testFile, {
       watch: false,
       ignoreInitial: false,
       exportType: "named",
+      declarationMap: false,
       listDifferent: false,
       verbose: true
     });
 
-    expect(fs.writeFileSync).toHaveBeenNthCalledWith(
-      1,
+    expect(fs.writeFileSync).toBeCalledWith(
       typesFile,
-      "export const someClass: string;\n//# sourceMappingURL=style.less.d.ts.map\n"
-    );
-    expect(fs.writeFileSync).toHaveBeenNthCalledWith(
-      2,
-      typesMapFile,
-      '{"version":3,"sources":[],"names":[],"mappings":"","file":"style.less.d.ts","sourceRoot":""}'
+      "export const someClass: string;\n"
     );
 
     expect(console.log).toBeCalledWith(
@@ -49,6 +43,7 @@ describe("writeFile", () => {
       watch: false,
       ignoreInitial: false,
       exportType: "named",
+      declarationMap: false,
       listDifferent: false,
       verbose: true
     });

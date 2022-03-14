@@ -103,4 +103,5 @@ describe("fileToClassNames", () => {
       ]);
     });
   });
+  // TODO: add test for `Transformation['originalPosition']`
 });

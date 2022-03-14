@@ -54,4 +54,5 @@ describe("writeFile", () => {
       expect.stringContaining(`[NO GENERATED TYPES] ${testFile}`)
     );
   });
+  // TODO: add test for `declarationMap: true`
 });

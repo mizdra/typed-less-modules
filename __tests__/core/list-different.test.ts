@@ -51,4 +51,5 @@ describe("writeFile", () => {
     expect(exit).not.toHaveBeenCalled();
     expect(console.log).not.toHaveBeenCalled();
   });
+  // TODO: add test for `declarationMap: true`
 });

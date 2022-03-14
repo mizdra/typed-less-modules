@@ -106,4 +106,5 @@ describe("classNamesToTypeDefinitions", () => {
       expect(definition).toBeNull;
     });
   });
+  // TODO: add test to check valid `typeDefinitionMap`
 });

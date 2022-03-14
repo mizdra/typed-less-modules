@@ -22,7 +22,7 @@ describe("main", () => {
 
     const expectedDirname = slash(__dirname);
 
-    expect(fs.writeFileSync).toBeCalledTimes(5);
+    expect(fs.writeFileSync).toBeCalledTimes(7);
 
     expect(fs.writeFileSync).toBeCalledWith(
       `${expectedDirname}/complex.less.d.ts`,

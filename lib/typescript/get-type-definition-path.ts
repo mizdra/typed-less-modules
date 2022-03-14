@@ -5,3 +5,5 @@
  * @param file the LESS file path
  */
 export const getTypeDefinitionPath = (file: string): string => `${file}.d.ts`;
+export const getTypeDefinitionMapPath = (file: string): string =>
+  `${file}.d.ts.map`;

@@ -6,7 +6,8 @@ import { MainOptions } from "./types";
 import { fileToClassNames } from "../less";
 import {
   classNamesToTypeDefinitions,
-  getTypeDefinitionPath
+  getTypeDefinitionPath,
+  getTypeDefinitionMapPath
 } from "../typescript";
 
 export const listDifferent = async (
@@ -34,28 +35,36 @@ export const checkFile = (
   options: MainOptions
 ): Promise<boolean> => {
   return new Promise(resolve =>
-    fileToClassNames(file, options).then(classNames => {
-      const typeDefinition = classNamesToTypeDefinitions(
-        classNames,
+    fileToClassNames(file, options).then(transformations => {
+      const definitions = classNamesToTypeDefinitions(
+        file,
+        transformations,
         options.exportType
       );
 
-      if (!typeDefinition) {
+      if (!definitions) {
         // Assume if no type defs are necessary it's fine
         resolve(true);
         return;
       }
 
       const path = getTypeDefinitionPath(file);
+      const content = fs.readFileSync(path, { encoding: "utf8" });
 
-      const content = fs.readFileSync(path, { encoding: "UTF8" });
-
-      if (content === typeDefinition) {
-        resolve(true);
-      } else {
-        alerts.error(`[INVALID TYPES] Check type definitions for ${file}`);
-        resolve(false);
+      if (content === definitions.typeDefinition) {
+        if (!options.declarationMap) {
+          resolve(true);
+          return;
+        }
+        const mapPath = getTypeDefinitionMapPath(file);
+        const mapContent = fs.readFileSync(mapPath, { encoding: "utf8" });
+        if (mapContent === definitions.typeDefinitionMap) {
+          resolve(true);
+          return;
+        }
       }
+      alerts.error(`[INVALID TYPES] Check type definitions for ${file}`);
+      resolve(false);
     })
   );
 };

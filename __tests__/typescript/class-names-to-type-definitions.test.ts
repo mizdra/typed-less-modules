@@ -1,5 +1,7 @@
 import { classNamesToTypeDefinitions, ExportType } from "../../lib/typescript";
 
+const SOURCE_FILE_BASENAME = "source.less";
+
 describe("classNamesToTypeDefinitions", () => {
   beforeEach(() => {
     console.log = jest.fn();
@@ -8,28 +10,41 @@ describe("classNamesToTypeDefinitions", () => {
   describe("named", () => {
     it("converts an array of class name strings to type definitions", () => {
       const definition = classNamesToTypeDefinitions(
-        ["myClass", "yourClass"],
+        SOURCE_FILE_BASENAME,
+        [{ className: "myClass" }, { className: "yourClass" }],
         "named"
       );
 
-      expect(definition).toEqual(
-        "export const myClass: string;\nexport const yourClass: string;\n"
-      );
+      expect(definition).toEqual({
+        typeDefinition:
+          "export const myClass: string;\nexport const yourClass: string;\n",
+        typeDefinitionMap:
+          '{"version":3,"sources":[],"names":[],"mappings":"","file":"source.less.d.ts","sourceRoot":""}'
+      });
     });
 
     it("returns null if there are no class names", () => {
-      const definition = classNamesToTypeDefinitions([], "named");
+      const definition = classNamesToTypeDefinitions(
+        SOURCE_FILE_BASENAME,
+        [],
+        "named"
+      );
 
       expect(definition).toBeNull;
     });
 
     it("prints a warning if a classname is a reserved keyword and does not include it in the type definitions", () => {
       const definition = classNamesToTypeDefinitions(
-        ["myClass", "if"],
+        SOURCE_FILE_BASENAME,
+        [{ className: "myClass" }, { className: "if" }],
         "named"
       );
 
-      expect(definition).toEqual("export const myClass: string;\n");
+      expect(definition).toEqual({
+        typeDefinition: "export const myClass: string;\n",
+        typeDefinitionMap:
+          '{"version":3,"sources":[],"names":[],"mappings":"","file":"source.less.d.ts","sourceRoot":""}'
+      });
       expect(console.log).toBeCalledWith(
         expect.stringContaining(`[SKIPPING] 'if' is a reserved keyword`)
       );
@@ -37,11 +52,16 @@ describe("classNamesToTypeDefinitions", () => {
 
     it("prints a warning if a classname is invalid and does not include it in the type definitions", () => {
       const definition = classNamesToTypeDefinitions(
-        ["myClass", "invalid-variable"],
+        SOURCE_FILE_BASENAME,
+        [{ className: "myClass" }, { className: "invalid-variable" }],
         "named"
       );
 
-      expect(definition).toEqual("export const myClass: string;\n");
+      expect(definition).toEqual({
+        typeDefinition: "export const myClass: string;\n",
+        typeDefinitionMap:
+          '{"version":3,"sources":[],"names":[],"mappings":"","file":"source.less.d.ts","sourceRoot":""}'
+      });
       expect(console.log).toBeCalledWith(
         expect.stringContaining(`[SKIPPING] 'invalid-variable' contains dashes`)
       );
@@ -51,17 +71,25 @@ describe("classNamesToTypeDefinitions", () => {
   describe("default", () => {
     it("converts an array of class name strings to type definitions", () => {
       const definition = classNamesToTypeDefinitions(
-        ["myClass", "yourClass"],
+        SOURCE_FILE_BASENAME,
+        [{ className: "myClass" }, { className: "yourClass" }],
         "default"
       );
 
-      expect(definition).toEqual(
-        "export interface Styles {\n  'myClass': string;\n  'yourClass': string;\n}\n\nexport type ClassNames = keyof Styles;\n\ndeclare const styles: Styles;\n\nexport default styles;\n"
-      );
+      expect(definition).toEqual({
+        typeDefinition:
+          "export interface Styles {\n  'myClass': string;\n  'yourClass': string;\n}\n\nexport type ClassNames = keyof Styles;\n\ndeclare const styles: Styles;\n\nexport default styles;\n",
+        typeDefinitionMap:
+          '{"version":3,"sources":[],"names":[],"mappings":"","file":"source.less.d.ts","sourceRoot":""}'
+      });
     });
 
     it("returns null if there are no class names", () => {
-      const definition = classNamesToTypeDefinitions([], "default");
+      const definition = classNamesToTypeDefinitions(
+        SOURCE_FILE_BASENAME,
+        [],
+        "default"
+      );
 
       expect(definition).toBeNull;
     });
@@ -70,11 +98,13 @@ describe("classNamesToTypeDefinitions", () => {
   describe("invalid export type", () => {
     it("returns null", () => {
       const definition = classNamesToTypeDefinitions(
-        ["myClass"],
+        SOURCE_FILE_BASENAME,
+        [{ className: "myClass" }],
         "invalid" as ExportType
       );
 
       expect(definition).toBeNull;
     });
   });
+  // TODO: add test to check valid `typeDefinitionMap`
 });

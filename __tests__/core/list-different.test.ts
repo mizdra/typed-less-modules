@@ -19,6 +19,7 @@ describe("writeFile", () => {
       watch: false,
       ignoreInitial: false,
       exportType: "named",
+      declarationMap: false,
       listDifferent: true,
       aliases: {
         "~fancy-import": "complex",
@@ -43,10 +44,12 @@ describe("writeFile", () => {
       watch: false,
       ignoreInitial: false,
       exportType: "named",
+      declarationMap: false,
       listDifferent: true
     });
 
     expect(exit).not.toHaveBeenCalled();
     expect(console.log).not.toHaveBeenCalled();
   });
+  // TODO: add test for `declarationMap: true`
 });

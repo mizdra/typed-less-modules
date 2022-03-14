@@ -17,6 +17,7 @@ describe("main", () => {
       watch: false,
       ignoreInitial: false,
       exportType: "named",
+      declarationMap: false,
       listDifferent: false
     });
 

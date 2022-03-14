@@ -64,6 +64,12 @@ const { _: patterns, ...rest } =
       alias: "e",
       describe: "The type of export used for defining the type defintions."
     })
+    .option("declarationMap", {
+      boolean: true,
+      default: false,
+      describe:
+        "Generates a source map for .less.d.ts files which map back to the original .less source file."
+    })
     .option("watch", {
       boolean: true,
       default: false,

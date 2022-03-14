@@ -16,6 +16,7 @@ describe("generate", () => {
       watch: false,
       ignoreInitial: false,
       exportType: "named",
+      declarationMap: false,
       listDifferent: false
     });
 

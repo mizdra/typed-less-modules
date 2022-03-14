@@ -6,4 +6,5 @@ describe("getTypeDefinitionPath", () => {
 
     expect(path).toEqual("/some/path/style.less.d.ts");
   });
+  // TODO: add test for `getTypeDefinitionMapPath`
 });

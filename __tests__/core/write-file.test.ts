@@ -1,7 +1,10 @@
 import fs from "fs";
 
 import { writeFile } from "../../lib/core";
-import { getTypeDefinitionPath } from "../../lib/typescript";
+import {
+  getTypeDefinitionPath,
+  getTypeDefinitionMapPath
+} from "../../lib/typescript";
 
 describe("writeFile", () => {
   beforeEach(() => {
@@ -18,6 +21,7 @@ describe("writeFile", () => {
       watch: false,
       ignoreInitial: false,
       exportType: "named",
+      declarationMap: false,
       listDifferent: false,
       verbose: true
     });
@@ -39,6 +43,7 @@ describe("writeFile", () => {
       watch: false,
       ignoreInitial: false,
       exportType: "named",
+      declarationMap: false,
       listDifferent: false,
       verbose: true
     });
@@ -49,4 +54,5 @@ describe("writeFile", () => {
       expect.stringContaining(`[NO GENERATED TYPES] ${testFile}`)
     );
   });
+  // TODO: add test for `declarationMap: true`
 });

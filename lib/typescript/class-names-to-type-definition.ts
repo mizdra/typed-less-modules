@@ -1,7 +1,10 @@
 import reserved from "reserved-words";
+import { Position, SourceMapGenerator } from "source-map";
 
-import { ClassNames, ClassName } from "lib/less/file-to-class-names";
+import { ClassName, Transformation } from "lib/less/file-to-class-names";
 import { alerts } from "../core";
+import { getTypeDefinitionPath } from "./get-type-definition-path";
+import path from "path";
 
 export type ExportType = "named" | "default";
 export const EXPORT_TYPES: ExportType[] = ["named", "default"];
@@ -32,29 +35,94 @@ const isValidName = (className: ClassName) => {
   return true;
 };
 
+const generateDefinitionMap = (
+  sourceFileBasename: string,
+  transformations: Transformation[],
+  toGeneratedPosition: (
+    transformation: Transformation,
+    index: number
+  ) => Position
+) => {
+  const map = new SourceMapGenerator({
+    file: getTypeDefinitionPath(sourceFileBasename),
+    sourceRoot: ""
+  });
+  transformations.forEach((transformation, i) => {
+    if (
+      transformation.originalPosition === undefined ||
+      transformation.originalPosition.line === null ||
+      transformation.originalPosition.column === null
+    )
+      return;
+    map.addMapping({
+      generated: toGeneratedPosition(transformation, i),
+      source: transformation.originalPosition.source || sourceFileBasename,
+      original: {
+        line: transformation.originalPosition.line,
+        column: transformation.originalPosition.column
+      }
+    });
+  });
+  return map.toString();
+};
+
 export const classNamesToTypeDefinitions = (
-  classNames: ClassNames,
+  sourceFile: string,
+  transformations: Transformation[],
   exportType: ExportType
-): string | null => {
+): { typeDefinition: string; typeDefinitionMap: string } | null => {
+  const classNames = transformations.map(({ className }) => className);
   if (classNames.length) {
-    let typeDefinitions;
+    let typeDefinition;
+    let typeDefinitionMap: string;
+    const sourceFileBasename = path.basename(sourceFile);
+    const map = new SourceMapGenerator({
+      file: getTypeDefinitionPath(sourceFileBasename),
+      sourceRoot: ""
+    });
 
     switch (exportType) {
       case "default":
-        typeDefinitions = "export interface Styles {\n";
-        typeDefinitions += classNames.map(classNameToInterfaceKey).join("\n");
-        typeDefinitions += "\n}\n\n";
-        typeDefinitions += "export type ClassNames = keyof Styles;\n\n";
-        typeDefinitions += "declare const styles: Styles;\n\n";
-        typeDefinitions += "export default styles;\n";
-        return typeDefinitions;
+        typeDefinition = "export interface Styles {\n";
+        typeDefinition += classNames.map(classNameToInterfaceKey).join("\n");
+        typeDefinition += "\n}\n\n";
+        typeDefinition += "export type ClassNames = keyof Styles;\n\n";
+        typeDefinition += "declare const styles: Styles;\n\n";
+        typeDefinition += "export default styles;\n";
+
+        typeDefinitionMap = generateDefinitionMap(
+          sourceFileBasename,
+          transformations,
+          (_transformation, i) => ({
+            // `line` is 1-based, `column` is 0-based
+            line: i + 1 + 1,
+            column: "  ".length
+          })
+        );
+
+        return { typeDefinition, typeDefinitionMap };
       case "named":
-        typeDefinitions = classNames
-          .filter(isValidName)
-          .map(classNameToNamedTypeDefinition);
+        typeDefinition =
+          classNames
+            .filter(isValidName)
+            .map(classNameToNamedTypeDefinition)
+            .join("\n") + "\n";
+
+        typeDefinitionMap = generateDefinitionMap(
+          sourceFileBasename,
+          transformations,
+          (_transformation, i) => ({
+            // `line` is 1-based, `column` is 0-based
+            line: i + 1,
+            column: "export const ".length
+          })
+        );
 
         // Sepearte all type definitions be a newline with a trailing newline.
-        return typeDefinitions.join("\n") + "\n";
+        return {
+          typeDefinition: typeDefinition,
+          typeDefinitionMap: map.toString()
+        };
       default:
         return null;
     }
